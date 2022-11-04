@@ -52,8 +52,15 @@ namespace SoulsFormats
                     if (header.Version >= 0x2000F)
                         uvFactor = 2048;
 
+                    bool DS1_X360 = (header.Version == 0x2000C || header.Version == 0x2000D) &&
+                                            header.BigEndian && header.Unk4A && 
+                                            header.Unk4C == 0x0000ffff;
+
                     for (int i = 0; i < vertices.Count; i++)
-                        vertices[i].Read(br, layout, uvFactor);
+                        if (DS1_X360) 
+                            vertices[i].Read_DS1_X360(br, layout, uvFactor);
+                        else 
+                            vertices[i].Read(br, layout, uvFactor);
                 }
                 br.StepOut();
 
@@ -86,8 +93,15 @@ namespace SoulsFormats
                 if (header.Version >= 0x2000F)
                     uvFactor = 2048;
 
+                bool DS1_X360 = (header.Version == 0x2000C || header.Version == 0x2000D) &&
+                                        header.BigEndian && header.Unk4A &&
+                                        header.Unk4C == 0x0000ffff;
+
                 foreach (FLVER.Vertex vertex in Vertices)
-                    vertex.Write(bw, layout, uvFactor);
+                    if (DS1_X360)
+                        vertex.Write_DS1_X360(bw, layout, uvFactor);
+                    else
+                        vertex.Write(bw, layout, uvFactor);
             }
         }
     }

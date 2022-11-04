@@ -108,10 +108,41 @@ namespace SoulsFormats
                 tangentQueue = null;
                 colorQueue = null;
             }
+            internal void Read_DS1_X360(BinaryReaderEx br, List<LayoutMember> layout, float uvFactor)
+            {
+                var buf = new byte[4];
+                var bs = br.Stream;
+                foreach (LayoutMember member in layout)
+                {
+                    var b4 = member.Type.ToString().Contains("Byte4");
+
+                    if (b4)
+                    {
+                        buf = br.ReadReversedBytes(4);
+                        bs.Seek(-4, SeekOrigin.Current);
+                        bs.Write(buf, 0, 4);
+                        bs.Seek(-4, SeekOrigin.Current);
+                    }
+
+                    ReadMember(br, member, uvFactor);
+
+                    if (b4)
+                    {
+                        Array.Reverse(buf);
+                        bs.Seek(-4, SeekOrigin.Current);
+                        bs.Write(buf, 0, 4);
+                    }
+                }
+            }
 
             internal void Read(BinaryReaderEx br, List<LayoutMember> layout, float uvFactor)
             {
                 foreach (LayoutMember member in layout)
+                    ReadMember(br, member, uvFactor);
+            }
+
+            internal void ReadMember(BinaryReaderEx br, LayoutMember member, float uvFactor)
+            {
                 {
                     if (member.Semantic == LayoutSemantic.Position)
                     {
@@ -387,9 +418,32 @@ namespace SoulsFormats
                 => new Vector3(ReadUShortNorm(br), ReadUShortNorm(br), ReadUShortNorm(br));
             #endregion
 
+            internal void Write_DS1_X360(BinaryWriterEx bw, List<LayoutMember> layout, float uvFactor)
+            {
+                var buf = new byte[4];
+                var bs = bw.Stream;
+                foreach (LayoutMember member in layout)
+                {
+                    WriteMember(bw, member, uvFactor);
+                   
+                    if (member.Type.ToString().Contains("Byte4"))
+                    {
+                        bs.Seek(-4, SeekOrigin.Current);
+                        bs.Read(buf, 0, 4);
+                        bs.Seek(-4, SeekOrigin.Current);
+                        bw.WriteReversedBytes(buf);
+                    }
+                }
+            }
+
             internal void Write(BinaryWriterEx bw, List<LayoutMember> layout, float uvFactor)
             {
                 foreach (LayoutMember member in layout)
+                    WriteMember(bw, member, uvFactor);
+            }
+
+            internal void WriteMember(BinaryWriterEx bw, LayoutMember member, float uvFactor)
+            {
                 {
                     if (member.Semantic == LayoutSemantic.Position)
                     {

@@ -67,7 +67,7 @@ namespace SoulsFormats
             bw = new BinaryWriter(stream);
         }
 
-        private void WriteReversedBytes(byte[] bytes)
+        public void WriteReversedBytes(byte[] bytes)
         {
             Array.Reverse(bytes);
             bw.Write(bytes);

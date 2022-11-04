@@ -69,7 +69,7 @@ namespace SoulsFormats
         /// <summary>
         /// Reads length bytes and returns them in reversed order.
         /// </summary>
-        private byte[] ReadReversedBytes(int length)
+        public byte[] ReadReversedBytes(int length)
         {
             byte[] bytes = ReadBytes(length);
             Array.Reverse(bytes);
@@ -424,12 +424,19 @@ namespace SoulsFormats
         /// <summary>
         /// Reads a four-byte signed integer.
         /// </summary>
-        public int ReadInt32()
+        public int ReadkInt32()
         {
             if (BigEndian)
                 return BitConverter.ToInt32(ReadReversedBytes(4), 0);
             else
                 return br.ReadInt32();
+        }
+
+        public int ReadInt32()
+        {
+            var f1 = ReadkInt32();
+            //Console.Write(f1.ToString("X")+" ");
+            return f1;
         }
 
         /// <summary>
